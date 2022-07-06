@@ -41,10 +41,10 @@ Rmid = Dmid/2.0
 
 
 #Number of parts
-N_parts = 3;
+N_parts = 4;
 
 #Max Radius of parts
-r_parts = [rs/5, rs/2, rs]; #ideally, the last part has a max radius of the wire
+r_parts = [rs/5, rs/2, rs/1.5, rs]; #ideally, the last part has a max radius of the wire
 
 #Number of turns of the coil
 N_Rev = 0.5 #Do not make this too large, it will take a very long time to solve
