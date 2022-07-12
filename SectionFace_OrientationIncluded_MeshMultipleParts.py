@@ -195,11 +195,19 @@ del mdb.models[ModelName].sketches['__profile__']
 mdb.models[ModelName].parts['Helix'].Set(name='cell_all',cells=mdb.models[ModelName].parts['Helix'].cells.findAt(((Rmid,0,0),),))
 
 #mdb.models[ModelName].parts['Helix'].Set(elements=mdb.models[ModelName].parts['Helix'].sets['cell_all'].elements, name='All')
+x_bottom = []
+r_temp = [0] + r_parts
+set_list = [];
+for part in range(N_parts):
+    # print((r_temp[part]+r_temp[part+1])/2)
+    mdb.models[ModelName].parts['Helix'].Set(name='bottom_face'+str(part+1),faces=mdb.models[ModelName].parts['Helix'].faces.findAt(((((r_temp[part]+r_temp[part+1])/2)+Rmid,0,0),),))
+    set_list.append(mdb.models[ModelName].parts['Helix'].sets['bottom_face'+str(part+1)])
 
-mdb.models[ModelName].parts['Helix'].Set(name='bottom_face',faces=mdb.models[ModelName].parts['Helix'].faces.findAt(((r*np.cos(0),h*0,r*np.sin(0)),),))
+mdb.models[ModelName].parts['Helix'].SetByBoolean(name='bottom_face', sets=tuple(set_list))
+
 mdb.models[ModelName].parts['Helix'].Set(name='top_face',faces=mdb.models[ModelName].parts['Helix'].faces.findAt(((r*np.cos(2*np.pi*N_Rev),h*2*np.pi*N_Rev,r*np.sin(2*np.pi*N_Rev)),),))
 
-#mdb.models[ModelName].parts['Helix'].Set(elements=mdb.models[ModelName].parts['Helix'].sets['bottom_face'].elements, name='face1')
+
 
 #Faces
 #ConvectionSurface
