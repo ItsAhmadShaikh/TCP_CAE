@@ -47,13 +47,13 @@ Rmid = Dmid/2.0
 
 
 #Number of parts
-N_parts = 1;#4;
+N_parts = 3;#4;
 
 #Max Radius of parts
-r_parts = [rs];#[rs/5, rs/2, rs/1.15, rs]; #ideally, the last part has a max radius of the wire
+r_parts = [rs/5, rs/2, rs];#[rs/5, rs/2, rs/1.15, rs]; #ideally, the last part has a max radius of the wire
 
 #Theta of each part
-theta_part = [0];#[0, -30, 60, 0];
+theta_part = [0, 0, 0];#[0, -30, 60, 0];
 
 #Number of turns of the coil
 N_Rev = 10; #Do not make this too large, it will take a very long time to solve
@@ -190,7 +190,6 @@ del mdb.models[ModelName].sketches['__profile__']
 #Sets
 mdb.models[ModelName].parts['Helix'].Set(name='cell_all',cells=mdb.models[ModelName].parts['Helix'].cells.findAt(((Rmid,0,0),),))
 
-#mdb.models[ModelName].parts['Helix'].Set(elements=mdb.models[ModelName].parts['Helix'].sets['cell_all'].elements, name='All')
 x_bottom = []
 r_temp = [0] + r_parts
 set_list = [];
@@ -209,7 +208,17 @@ mdb.models[ModelName].parts['Helix'].Set(name='top_face',faces=mdb.models[ModelN
 #ConvectionSurface
 mdb.models[ModelName].parts['Helix'].Surface(side1Faces=mdb.models[ModelName].parts['Helix'].faces.getByBoundingCylinder((0,-1*Pitch,0),(0,(Pitch*(N_Rev+1)),0),D+0.1e-3), name='All_Faces')
 #Bottom Surface
-mdb.models[ModelName].parts['Helix'].Surface(name='bottom_face', side1Faces= mdb.models[ModelName].parts['Helix'].faces.findAt(((r*np.cos(0),h*0,r*np.sin(0)),),))
+x_bottom = []
+r_temp = [0] + r_parts
+set_list = [];
+for part in range(N_parts):
+    # print((r_temp[part]+r_temp[part+1])/2)
+    mdb.models[ModelName].parts['Helix'].Surface(name='bottom_face'+str(part+1),side1Faces=mdb.models[ModelName].parts['Helix'].faces.findAt(((((r_temp[part]+r_temp[part+1])/2)+Rmid,0,0),),))
+    set_list.append(mdb.models[ModelName].parts['Helix'].surfaces['bottom_face'+str(part+1)])
+
+mdb.models[ModelName].parts['Helix'].SurfaceByBoolean(name='bottom_face', surfaces=tuple(set_list))
+
+# mdb.models[ModelName].parts['Helix'].Surface(name='bottom_face', side1Faces= mdb.models[ModelName].parts['Helix'].faces.findAt(((r*np.cos(0),h*0,r*np.sin(0)),),))
 #Top Surface
 mdb.models[ModelName].parts['Helix'].Surface(name='top_face', side1Faces= mdb.models[ModelName].parts['Helix'].faces.findAt(((r*np.cos(2*np.pi*N_Rev),h*2*np.pi*N_Rev,r*np.sin(2*np.pi*N_Rev)),),))
 
@@ -263,13 +272,13 @@ for elemid in range(1,len(centroid_list)+1):
     y1 = xyz[1]
     z1 = xyz[2]   
     m = 0;
-    L = np.ones([22,5])*1000;
+    L = np.ones([50,5])*1000;
     
     t_gue = y1/h;
     
     # for gue in np.arange(-11,11): #The error is here, I need to guess ti a theta value, not h
     #So i need to dynamically change my guesses depending on my y value, so keep a +- 20% depending on what theta should be at that y
-    for gue in np.linspace(t_gue*0.5,t_gue*1.5,22): 
+    for gue in np.linspace(t_gue-pi,t_gue+pi,50): 
         def needed (t1,r,h,x1,y1,z1):
             y = x1*r*np.sin(t1)-z1*r*np.cos(t1)+h*h*t1-y1*h;
             return y        
@@ -293,35 +302,9 @@ for elemid in range(1,len(centroid_list)+1):
     z3 = L[k_i,3]
     t_use = L[k_i,4]
     
-    # lst_ori.append(-1*r*np.sun(t_use))
-    # lst_ori.append(t_use)
-    # lst_ori.append(r*np.cos(t_use))
-    # lst_ori.append(x1)
-    # lst_ori.append(100)
-    # lst_ori.append(z1)       
-    
-    # arr1 = [x3-x1, y3-y3, z3-z1]
-    # arr2 = [x1-x1, 100-y3, z1-z1]
-    # arr3 = np.cross(arr1,arr2)
-    
     arr1 = np.array([x1-x3, y1-y3, z1-z3])
     arr2 = np.array([-r*np.sin(t_use), h, r*np.cos(t_use) ])
     arr3 = np.cross(arr1,arr2)
-    
-    # lst_ori.append(x3-x1)
-    # lst_ori.append(y3-y1)
-    # lst_ori.append(z3-z1)
-    # lst_ori.append(x1-x1)
-    # lst_ori.append(100-y1)
-    # lst_ori.append(z1-z1)
-    
-    
-    # lst_ori.append(x1)
-    # lst_ori.append(y1)
-    # lst_ori.append(z1)
-    # lst_ori.append(x3)
-    # lst_ori.append(100)
-    # lst_ori.append(z3)
     
     for part in range(N_parts):
         if Lmin > r_parts[part] and Lmin < r_parts[part+1]:
@@ -338,15 +321,10 @@ for elemid in range(1,len(centroid_list)+1):
             lst_ori.append(arr2[0])
             lst_ori.append(arr2[1])
             lst_ori.append(arr2[2])
-        else:
-            print('error')
-            print(elemid)
-            print((Lmin-r_parts[part+1])*100/r_parts[part+1])
-    # else:
-        # lst2.append(elemid)
-    # k1 = L[:,0];
-    # k = k1.tolist();
-    # i = k.index(min(k));
+        # else:
+            # print('error')
+            # print(elemid)
+            # print((Lmin-r_parts[part+1])*100/r_parts[part+1])
     
   
 for part in range(N_parts):   
@@ -379,13 +357,20 @@ mdb.models[ModelName].materials['Nylon66'].JouleHeatFraction()
 mdb.models[ModelName].materials['Nylon66'].Conductivity(table=((0.3, ), ))
 mdb.models[ModelName].materials['Nylon66'].SpecificHeat(table=((1700.0, ), ))
 #Sections
+
 mdb.models[ModelName].HomogeneousSolidSection(material='Nylon66', name='Nylon66'
     , thickness=None)
 
-mdb.models[ModelName].parts['Helix'].SectionAssignment(offset=0.0, offsetField=
-    '', offsetType=MIDDLE_SURFACE, region=
-    mdb.models[ModelName].parts['Helix'].sets['cell_all'], sectionName='Nylon66'
-    , thicknessAssignment=FROM_SECTION)
+# mdb.models[ModelName].parts['Helix'].SectionAssignment(offset=0.0, offsetField=
+    # '', offsetType=MIDDLE_SURFACE, region=
+    # mdb.models[ModelName].parts['Helix'].sets['cell_all'], sectionName='Nylon66'
+    # , thicknessAssignment=FROM_SECTION)
+
+for part in range(N_parts):   
+    mdb.models[ModelName].parts['Helix'].SectionAssignment(offset=0.0, offsetField=
+        '', offsetType=MIDDLE_SURFACE, region=
+        mdb.models[ModelName].parts['Helix'].sets['P'+str(part+1)], sectionName='Nylon66'
+        , thicknessAssignment=FROM_SECTION)
     
     
 #Assembly
