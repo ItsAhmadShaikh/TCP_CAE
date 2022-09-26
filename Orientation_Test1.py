@@ -47,16 +47,16 @@ Rmid = Dmid/2.0
 
 
 #Number of parts
-N_parts = 3;#4;
+N_parts = 4;#4;
 
 #Max Radius of parts
-r_parts = [rs/5, rs/2, rs];#[rs/5, rs/2, rs/1.15, rs]; #ideally, the last part has a max radius of the wire
+r_parts = [rs/5, rs/2, rs/1.15, rs];#[rs/5, rs/2, rs/1.15, rs]; #ideally, the last part has a max radius of the wire
 
 #Theta of each part
-theta_part = [0, 0, 0];#[0, -30, 60, 0];
+theta_part = [0, 20, 40, 60];#[0, -30, 60, 0];
 
 #Number of turns of the coil
-N_Rev = 10; #Do not make this too large, it will take a very long time to solve
+N_Rev = 0.10; #Do not make this too large, it will take a very long time to solve
 
 
 ModelName = 'Heating_Only'
@@ -225,7 +225,7 @@ mdb.models[ModelName].parts['Helix'].Surface(name='top_face', side1Faces= mdb.mo
 
 #Mesh Model
 mdb.models[ModelName].parts['Helix'].seedPart(deviationFactor=0.1, 
-    minSizeFactor=0.1, size=D/20)
+    minSizeFactor=0.1, size=D/60)
 mdb.models[ModelName].parts['Helix'].setMeshControls(algorithm=MEDIAL_AXIS, regions = mdb.models[ModelName].parts['Helix'].cells.findAt(((Rmid,0,0),),))
 mdb.models[ModelName].parts['Helix'].generateMesh()
    

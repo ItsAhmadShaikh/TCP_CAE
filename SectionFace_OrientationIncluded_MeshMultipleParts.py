@@ -56,7 +56,7 @@ r_parts = [rs/5, rs/2, rs/1.15, rs]; #ideally, the last part has a max radius of
 theta_part = [0, -30, 60, 0];
 
 #Number of turns of the coil
-N_Rev = 0.1 #Do not make this too large, it will take a very long time to solve
+N_Rev = 1 #Do not make this too large, it will take a very long time to solve
 
 
 ModelName = 'TheMesh'
@@ -241,7 +241,7 @@ mdb.models[ModelName].parts['Helix'].Set(elements=mdb.models[ModelName].parts['H
 
 
 
-# t = np.linspace(0, N_Rev*2*np.pi,100*N_Rev);
+t = np.linspace(0, N_Rev*2*np.pi,100*N_Rev);
 r = Rmid;
 pitch = Pitch;
 h = pitch/(2*np.pi);
