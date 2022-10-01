@@ -40,10 +40,17 @@ N = 280.0
 Pitch = H/N
 
 #Number of turns of the coil
-N_Rev = 0.5
+N_Rev = 2
+
+Dmid = D-ds #Diameter of the helix
+R = D/2.0
+rs = ds/2.0
+Rmid = Dmid/2.0
+H_model = Pitch*N_Rev
 
 #Number of Partitions (Equally Spaced
 n_partition = 4
+r_parts = []
 for i in range(n_partition):
     r_parts = [rs*(n_partition-i)/(n_partition)]+r_parts
 r_parts_temp = [0] + r_parts
@@ -53,11 +60,7 @@ r_parts_temp = [0] + r_parts
 # n_partition = len(r_parts)
 # r_parts_temp = [0] + r_parts
 
-Dmid = D-ds #Diameter of the helix
-R = D/2.0
-rs = ds/2.0
-Rmid = Dmid/2.0
-H_model = Pitch*N_Rev
+
 
 # ModelName = 'Model-1'
 # jobName = ModelName
@@ -148,6 +151,7 @@ mdb.models['Model-1'].parts[Temp_Part].SetByBoolean(name='All_Cells', sets=tuple
 mdb.models['Model-1'].parts[Temp_Part].seedPart(deviationFactor=0.1, 
     minSizeFactor=0.1, size=0.05)
 mdb.models['Model-1'].parts[Temp_Part].generateMesh()
+mdb.models['Model-1'].rootAssembly.regenerate()
 
 
 
@@ -181,6 +185,7 @@ mdb.models['Model-1'].parts[Use_Part].SetByBoolean(name='All_Cells', sets=tuple(
 mdb.models['Model-1'].parts[Temp_Part].seedPart(deviationFactor=0.1, 
     minSizeFactor=0.1, size=0.05e-3)
 mdb.models['Model-1'].parts[Use_Part].generateMesh()
+mdb.models['Model-1'].rootAssembly.regenerate()
 
 
 
