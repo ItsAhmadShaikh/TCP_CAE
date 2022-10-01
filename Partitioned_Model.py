@@ -21,8 +21,8 @@ import numpy as np
 import os
 session.journalOptions.setValues(replayGeometry=COORDINATE, recoverGeometry=COORDINATE)
 
-# setPath = r'D:/OneDrive - Indian Institute of Science/TRINA_TCPA/Week 23/Simulations2/'
-# os.chdir(setPath)
+setPath = r'D:/OneDrive - Indian Institute of Science/TRINA_TCPA/Week 23/Simulations2/'
+os.chdir(setPath)
 
 
 #Max Diameter of the helix
@@ -149,43 +149,58 @@ mdb.models['Model-1'].parts[Temp_Part].SetByBoolean(name='All_Cells', sets=tuple
 
 #Mesh
 mdb.models['Model-1'].parts[Temp_Part].seedPart(deviationFactor=0.1, 
-    minSizeFactor=0.1, size=0.05)
-mdb.models['Model-1'].parts[Temp_Part].generateMesh()
-mdb.models['Model-1'].rootAssembly.regenerate()
-
-
-
-
-
-#Create Scaled Part
-mdb.models['Model-1'].Part(compressFeatureList=ON, name= Use_Part, 
-    objectToCopy=mdb.models['Model-1'].parts[Temp_Part], scale=0.001)
+    minSizeFactor=0.1, size=ds/10)
     
-D = D*1e-3
-ds = ds*1e-3
-H = H*1e-3
-L = L*1e-3
-Pitch = H/N    
-r_parts = np.array(r_parts)*1e-3
-r_parts_temp = np.array(r_parts_temp)*1e-3
-Dmid = D-ds
-R = D/2.0
-rs = ds/2.0
-Rmid = Dmid/2.0
-H_model = Pitch*N_Rev
-
-#Sets
-set_list = []    
 for i in range(n_partition):
-    mdb.models['Model-1'].parts[Use_Part].Set(name='Cell'+str(i+1),cells=mdb.models['Model-1'].parts[Use_Part].cells.findAt(((  ((Rmid+r_parts_temp[i])+(Rmid+r_parts_temp[i+1])) /2, 0, 0.0),),))
-    set_list.append(mdb.models['Model-1'].parts[Use_Part].sets['Cell'+str(i+1)])
-mdb.models['Model-1'].parts[Use_Part].SetByBoolean(name='All_Cells', sets=tuple(set_list))
+    mdb.models['Model-1'].parts['TempPart'].setMeshControls(elemShape=TET, regions=
+        mdb.models['Model-1'].parts['TempPart'].cells.findAt(((
+        ((Rmid+r_parts_temp[i])+(Rmid+r_parts_temp[i+1])) /2, 0, 0.0),),), technique=FREE)
 
-#Mesh
-mdb.models['Model-1'].parts[Temp_Part].seedPart(deviationFactor=0.1, 
-    minSizeFactor=0.1, size=0.05e-3)
-mdb.models['Model-1'].parts[Use_Part].generateMesh()
+mdb.models['Model-1'].parts[Temp_Part].generateMesh()
+
+for i in range(n_partition):
+    mdb.models['Model-1'].parts[Temp_Part].setElementType(elemTypes=(ElemType(
+        elemCode=C3D20R, elemLibrary=STANDARD), ElemType(elemCode=C3D15, 
+        elemLibrary=STANDARD), ElemType(elemCode=C3D10, elemLibrary=STANDARD, 
+        secondOrderAccuracy=OFF, distortionControl=DEFAULT)), regions=(
+        mdb.models['Model-1'].parts[Temp_Part].cells.findAt(((
+        ((Rmid+r_parts_temp[i])+(Rmid+r_parts_temp[i+1])) /2, 0, 0.0),),), ))
+        
 mdb.models['Model-1'].rootAssembly.regenerate()
+
+
+
+
+
+# #Create Scaled Part
+# mdb.models['Model-1'].Part(compressFeatureList=ON, name= Use_Part, 
+    # objectToCopy=mdb.models['Model-1'].parts[Temp_Part], scale=0.001)
+    
+# D = D*1e-3
+# ds = ds*1e-3
+# H = H*1e-3
+# L = L*1e-3
+# Pitch = H/N    
+# r_parts = np.array(r_parts)*1e-3
+# r_parts_temp = np.array(r_parts_temp)*1e-3
+# Dmid = D-ds
+# R = D/2.0
+# rs = ds/2.0
+# Rmid = Dmid/2.0
+# H_model = Pitch*N_Rev
+
+# #Sets
+# set_list = []    
+# for i in range(n_partition):
+    # mdb.models['Model-1'].parts[Use_Part].Set(name='Cell'+str(i+1),cells=mdb.models['Model-1'].parts[Use_Part].cells.findAt(((  ((Rmid+r_parts_temp[i])+(Rmid+r_parts_temp[i+1])) /2, 0, 0.0),),))
+    # set_list.append(mdb.models['Model-1'].parts[Use_Part].sets['Cell'+str(i+1)])
+# mdb.models['Model-1'].parts[Use_Part].SetByBoolean(name='All_Cells', sets=tuple(set_list))
+
+# #Mesh
+# mdb.models['Model-1'].parts[Temp_Part].seedPart(deviationFactor=0.1, 
+    # minSizeFactor=0.1, size=0.05e-3)
+# mdb.models['Model-1'].parts[Use_Part].generateMesh()
+# mdb.models['Model-1'].rootAssembly.regenerate()
 
 
 
